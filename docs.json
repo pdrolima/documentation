@@ -76,8 +76,8 @@
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "dark": "https://d1huxt1mr63m7u.cloudfront.net/palqee_white.png",
+    "light": "https://d1huxt1mr63m7u.cloudfront.net/palqee_blue.png"
   },
   "navbar": {
     "links": [
