@@ -1,58 +1,103 @@
 {
-  "openapi": "3.1.0",
+  "openapi": "3.0.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "title": "Palqee REST API",
+    "description": "The Palqee REST API.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Palqee",
+      "url": "https://palqee.com"
+    }
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://sai2qej5xf.execute-api.us-east-1.amazonaws.com/dev-review-rest2/api/v0/rest"
     }
   ],
-  "security": [
+  "tags": [
     {
-      "bearerAuth": []
+      "name": "Companies"
+    },
+    {
+      "name": "Consents"
     }
   ],
   "paths": {
-    "/plants": {
+    "/companies": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
+        "operationId": "getCompanyById",
+        "tags": [
+          "Companies"
         ],
+        "summary": "Get companies",
+        "description": "Get companies associated with the API Key",
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "properties": {
+                    "companies": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Company"
+                      }
+                    },
+                    "paginationInfo": {
+                      "$ref": "#/components/schemas/PaginationInfo"
+                    }
                   }
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/consents": {
+      "get": {
+        "tags": [
+          "Consents"
+        ],
+        "summary": "Get consents responses",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "example": "10"
           },
-          "400": {
-            "description": "Unexpected error",
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object",
+                  "properties": {
+                    "consents": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ConsentResponse"
+                      }
+                    },
+                    "paginationInfo": {
+                      "$ref": "#/components/schemas/PaginationInfo"
+                    }
+                  }
                 }
               }
             }
@@ -60,35 +105,26 @@
         }
       },
       "post": {
-        "description": "Creates a new plant in the store",
+        "tags": [
+          "Consents"
+        ],
+        "summary": "Add response to a consent",
         "requestBody": {
-          "description": "Plant to add to the store",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/CreateConsentRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/ConsentResponse"
                 }
               }
             }
@@ -96,57 +132,53 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+    "/consents/forms": {
+      "get": {
+        "tags": [
+          "Consents"
+        ],
+        "summary": "List Consents Forms",
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
+            "name": "limit",
+            "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
+              "type": "integer"
+            },
+            "description": "Indicates how many results to return per page. By default we return 25 results per page.",
+            "example": "3"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "A page number within the paginated result set.",
+            "example": "0"
           }
         ],
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object",
+                  "properties": {
+                    "forms": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ConsentForm"
+                      }
+                    },
+                    "paginationInfo": {
+                      "$ref": "#/components/schemas/PaginationInfo"
+                    }
+                  }
                 }
               }
             }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
           }
         }
       }
@@ -154,64 +186,287 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "Company": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "name": {
-            "description": "The name of the plant",
             "type": "string"
           },
-          "tag": {
-            "description": "Tag to specify the type",
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "addressId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyStructureId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "numberOfEmployees": {
+            "type": "integer"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "annualSalesRevenueId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "currencyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "logoS3FileInfoId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "usersPrimaryEmailDomain": {
+            "type": "string"
+          },
+          "slug": {
             "type": "string"
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+      "Consent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
           },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
+          "personId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "conditionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstGrantedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "grantedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "grantedByPersonId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revokedByPersonId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isLastVerified": {
+            "type": "boolean"
+          },
+          "isHidden": {
+            "type": "boolean"
+          },
+          "statusCode": {
+            "type": "string"
+          }
+        }
+      },
+      "ConsentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "personId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "conditionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstGrantedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "grantedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "grantedByPersonId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revokedByPersonId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isLastVerified": {
+            "type": "boolean"
+          },
+          "isHidden": {
+            "type": "boolean"
+          },
+          "statusCode": {
+            "type": "string",
+            "enum": [
+              "GRANTED"
+            ]
+          }
+        }
+      },
+      "PaginationInfo": {
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "integer"
+          },
+          "totalPages": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          }
+        }
+      },
+      "CreateConsentRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "consents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "conditionId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "doAgree": {
+                  "type": "boolean"
+                }
               }
             }
           }
-        ]
+        }
       },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+      "ConsentForm": {
         "type": "object",
         "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
+          "id": {
+            "type": "string",
+            "format": "uuid"
           },
-          "message": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "title": {
             "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "privacyPolicyLink": {
+            "type": "string"
+          },
+          "draftAccessToken": {
+            "type": "string"
+          },
+          "isDraft": {
+            "type": "boolean"
+          },
+          "isArchived": {
+            "type": "boolean"
+          },
+          "consentExpiresAfterPeriod": {
+            "type": "string"
+          },
+          "allowConsentOnBehalf": {
+            "type": "boolean"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "logoS3FileInfoId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "defaultLanguage": {
+            "type": "string"
+          },
+          "lastUpdatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "formId": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       }
     },
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization"
       }
     }
-  }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
 }
